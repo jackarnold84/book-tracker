@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Book Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="static/images/icon.png">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="static/style.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.18.2.min.js"></script>
+  <script src="static/utils.js"></script>
+  <script src="static/modal.js"></script>
+  <script src="static/plotly.js"></script>
+</head>
+
+
+<body>
+
+  <!-- HEADER -->
+  <div class="w3-container w3-padding w3-black center">
+    <a href="index.html" class="plain">
+      <h1 class="white-text">Book Tracker</h1>
+    </a>
+  </div>
+
+
+  <!-- CONTENT -->
+  <div class="auto content-container">
+
+    <div class="center x3-t8">Updated {{ meta['last_update_display'] }}</div>
+
+    <!-- Time Series Plot -->
+    <div class="x3-row">
+
+      <h3 class="center">Value Over Time</h3>
+      <div class="center text rounded x3-b4">
+        <div class="w3-border rounded auto" style="max-width: 130px;">
+          <button class="ts-group-tab tab-btn-selected" value="books">Books</button>
+          <button class="ts-group-tab tab-btn" value="total">Total</button>
+        </div>
+      </div>
+      <div class="center text rounded">
+        <div class="w3-border rounded auto" style="max-width: 360px;">
+          <button class="ts-time-tab tab-btn-selected" value="30">1M</button>
+          <button class="ts-time-tab tab-btn" value="90">3M</button>
+          <button class="ts-time-tab tab-btn" value="180">6M</button>
+          <button class="ts-time-tab tab-btn" value="365">1Y</button>
+          <button class="ts-time-tab tab-btn" value="all">All</button>
+          <button class="ts-time-tab tab-btn" value="custom">Custom</button>
+        </div>
+      </div>
+
+      <div id="pct-change" class="text center x3-t8"></div>
+      <div id="time-series-plot" class="auto" style="max-width: 700px;"></div>
+
+    </div>
+
+
+    <!-- Book Values -->
+    <div class="x3-row center">
+      <h4>Book Value</h4>
+
+      <p class="text">Total: {{ total_value }}</p>
+      <div id="book-values-plot" class="auto" style="max-width: 500px;"></div>
+    </div>
+
+
+    <!-- Net Flow -->
+    <div class="x3-row center">
+      <h4>Net Flow</h4>
+
+      <div class="auto" style="max-width: 300px;">
+        <table class="w3-table w3-border w3-bordered text">
+          <tbody>
+            {% for x in net_actions %}
+            <tr>
+              <th>{{ x['type'] }}</th>
+              <td>{{ x['value'] }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+    <!-- Monthly Earnings -->
+    <div class="x3-row center">
+      <h4>Monthly Earnings</h4>
+
+      <div class="x3-row center text rounded">
+        <div class="w3-border rounded auto" style="max-width: 120px;">
+          <button id="me-prev" class="tab-btn">
+            <i class="bi-arrow-left"></i>
+          </button>
+          <button id="me-next" class="tab-btn">
+            <i class="bi-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <div id="monthly-earnings-plot" class="auto" style="max-width: 500px;"></div>
+    </div>
+
+
+    <!-- Earnings Rate -->
+    <div class="x3-row center">
+      <h4>Earnings Rate</h4>
+
+      <div class="x3-row center text rounded">
+        <div class="w3-border rounded auto" style="max-width: 180px;">
+          <button class="er-tab tab-btn-selected" value="90">3M</button>
+          <button class="er-tab tab-btn" value="180">6M</button>
+          <button class="er-tab tab-btn" value="365">1Y</button>
+        </div>
+      </div>
+
+      <div class="auto" style="max-width: 300px;">
+        {% for span in earnings_rate %}
+        <table id="er-table-{{ span }}" class="er-table w3-table w3-border w3-bordered fixed-layout text">
+          <tbody>
+            <tr>
+              <th>Per Day</th>
+              <td>{{ earnings_rate[span]['per_day'] }}</td>
+            </tr>
+            <tr>
+              <th>Per Week</th>
+              <td>{{ earnings_rate[span]['per_week'] }}</td>
+            </tr>
+            <tr>
+              <th>Total</th>
+              <td>{{ earnings_rate[span]['total'] }}</td>
+            </tr>
+          </tbody>
+        </table>
+        {% endfor %}
+
+      </div>
+    </div>
+
+
+
+    <!-- Carrer Bets -->
+    <div class="x3-row center">
+      <h4>Career Betting</h4>
+
+      <div class="auto" style="max-width: 300px;">
+        <table class="w3-table w3-border w3-bordered text">
+          <tbody>
+            <tr>
+              <th>Total Bets Placed</th>
+              <td>{{ carrer['career_bets'] }}</td>
+            </tr>
+            <tr>
+              <th>Avg Bet Amount</th>
+              <td>{{ carrer['avg_bet'] }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- FOOTER -->
+  <footer class="w3-center w3-container x3-b4" style="margin-top: 64px;">
+    <i class="bi-c-circle"></i>
+    <span>2023 Jack Arnold</span>
+  </footer>
+
+
+  <!-- MODALS -->
+  <div id="custom-range-modal" class="modal">
+    <div class="modal-content">
+      <h4>Enter a custom time range:</h4>
+      <form onsubmit="handleCustomRangeSubmit(event)">
+        <div class="x3-row">
+          <div class="x3-row">
+            <label class="x3-label">Start</label>
+            <input type="date" id="custom-start-input" class="x3-input custom-range-input">
+          </div>
+          <div class="x3-row">
+            <label class="x3-label">End</label>
+            <input type="date" id="custom-end-input" class="x3-input custom-range-input">
+          </div>
+        </div>
+        <div class="x3-row center">
+          <input type="submit" value="Continue" class="x3-button fit" style="max-width: 140px">
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+</body>
+
+
+
+<!-- SCRIPTS -->
+
+{# data from jinja #}
+<script>
+
+  const meta = {{ meta | tojson }};
+  const bookValuesData = {{ book_values | tojson }};
+  const monthlyEarningsData = {{ profit_by_month | tojson }};
+  const bookTimeSeriesData = {{ book_time_series | tojson }};
+  const netTimeSeriesData = {{ net_time_series | tojson }};
+
+</script>
+
+
+{# time series plot #}
+<script>
+
+  // state
+  let timeSeriesByBook = true;
+  let timeSeriesRangeMin = 0;
+  let timeSeriesRangeMax = 9e9;
+
+  // percent change
+  const showPercentChange = (plotData) => {
+    const abbrevMapper = { 'Fanduel': 'FD', 'Draftkings': 'DK', 'Caesars': 'CZR' };
+    $('#pct-change').empty();
+    plotData.forEach(data => {
+      if (data.y.length >= 2) {
+        const startValue = data.y.at(0);
+        const endValue = data.y.at(-1);
+        const change = getPercentChange(startValue, endValue);
+        const abbrev = abbrevMapper[data.name] || data.name;
+        const color = data.marker.color;
+        $('#pct-change').append(`
+          <span class="pct-span" style="color: ${color}">
+            <span class="semibold">${abbrev}</span>
+            ${change}
+          </span>
+        `);
+      }
+    })
+  };
+
+  // plot
+  const plotTimeSeries = () => {
+    const byBook = timeSeriesByBook;
+    const rangeMin = timeSeriesRangeMin;
+    const rangeMax = timeSeriesRangeMax;
+
+    const dataProps = {
+      hovertemplate: '%{customdata}<br> $%{y:.2f}',
+      type: 'scatter',
+      showlegend: true,
+    }
+    let plotData = [];
+    if (byBook) {
+      plotData = bookTimeSeriesData.map(data => {
+        const start = getPosition(data.timestamp, rangeMin);
+        const end = getPosition(data.timestamp, rangeMax);
+        return {
+          x: data.time.slice(start, end),
+          y: data.value.slice(start, end),
+          customdata: data.time_display.slice(start, end),
+          name: data.book,
+          marker: { color: data.color },
+          ...dataProps,
+        }
+      })
+    } else {
+      const data = netTimeSeriesData;
+      const start = getPosition(data.timestamp, rangeMin);
+      const end = getPosition(data.timestamp, rangeMax);
+      plotData = [
+        {
+          x: data.time.slice(start, end),
+          y: data.value.slice(start, end),
+          customdata: data.time_display.slice(start, end),
+          name: 'Total',
+          marker: { color: data.color },
+          ...dataProps,
+        }
+      ]
+    }
+    let layout = {
+      xaxis: { fixedrange: true },
+      yaxis: { fixedrange: true, tickprefix: '$' },
+      height: 320,
+      legend: { orientation: 'h', y: -0.2 },
+      ...plotlyLayout,
+    };
+    Plotly.react('time-series-plot', plotData, layout, plotlyConfig);
+    showPercentChange(plotData);
+  };
+
+  const updateTimeSeriesRange = (value, customMin, customMax) => {
+    let min = 0, max = 9e9;
+    if (['30', '90', '180', '365'].includes(value)) {
+      min = meta.last_update_timestamp - (DAY_SIZE * parseInt(value));
+    } else if (value === 'custom') {
+      min = customMin || 0;
+      max = customMax || 9e9;
+      if (min > max) max = min;
+    }
+    timeSeriesRangeMin = min;
+    timeSeriesRangeMax = max;
+    plotTimeSeries();
+  };
+  updateTimeSeriesRange('30');
+
+  const updateTimeSeriesGrouping = (byBook = true) => {
+    timeSeriesByBook = byBook;
+    plotTimeSeries();
+  };
+
+  // group by tabs
+  $('.ts-group-tab').on('click', (e) => {
+    if ($(e.target).hasClass('tab-btn-selected')) return
+    $('.ts-group-tab').removeClass('tab-btn-selected').addClass('tab-btn');
+    $(e.target).removeClass('tab-btn').addClass('tab-btn-selected');
+
+    const value = $(e.target).val();
+    updateTimeSeriesGrouping(value === 'books');
+  });
+
+  // time span tabs
+  $('.ts-time-tab').on('click', (e) => {
+    $('.ts-time-tab').removeClass('tab-btn-selected').addClass('tab-btn');
+    $(e.target).removeClass('tab-btn').addClass('tab-btn-selected');
+
+    const value = $(e.target).val();
+    if (value === 'custom') {
+      openModal('custom-range-modal');
+    } else {
+      updateTimeSeriesRange(value);
+    }
+  });
+
+  // custom range modal
+  const handleCustomRangeSubmit = (e) => {
+    e.preventDefault();
+    const startVal = $('#custom-start-input').val();
+    const endVal = $('#custom-end-input').val();
+    const customStart = dateToEpoch(startVal);
+    const customEnd = dateToEpoch(endVal);
+    closeModal();
+    updateTimeSeriesRange('custom', customStart, customEnd);
+  };
+  $('#custom-start-input').val(meta.min_date);
+  $('#custom-end-input').val(meta.max_date);
+  $('.custom-range-input').attr('min', meta.min_date);
+  $('.custom-range-input').attr('max', meta.max_date);
+
+
+</script>
+
+
+{# book values #}
+<script>
+
+  const plotBookValues = () => {
+    let x = bookValuesData.map(x => x.value);
+    let y = bookValuesData.map(x => x.book);
+    let xMax = Math.max(...x);
+    let data = [
+      {
+        x: x.reverse(),
+        y: y.reverse(),
+        type: 'bar',
+        orientation: 'h',
+        texttemplate: '%{x}',
+        textposition: 'outside',
+        outsidetextfont: { size: '12' },
+        name: '',
+        hovertemplate: '%{y}<br> %{x}',
+        marker: { color: meta.book_color_sequence.reverse() },
+      }
+    ];
+    let layout = {
+      xaxis: {
+        visible: false, fixedrange: true, tickprefix: '$', tickformat: ',.2f',
+        range: [0, xMax * 1.3],
+      },
+      yaxis: { fixedrange: true },
+      height: 200,
+      ...plotlyLayout,
+    };
+    Plotly.react('book-values-plot', data, layout, plotlyConfig);
+  };
+  plotBookValues();
+
+</script>
+
+{# monthly earnings #}
+<script>
+
+  // state
+  let monthlyEarningsPos = Math.max(monthlyEarningsData.length - 6, 0);
+
+  // plot
+  const plotMonthlyEarnings = () => {
+    const pos = monthlyEarningsPos;
+    const dataSlice = monthlyEarningsData.slice(pos, pos + 6);
+    let x = dataSlice.map(x => x.profit);
+    let y = dataSlice.map(x => x.month);
+    let colorSeq = dataSlice.map(x => x.color);
+    let xMin = Math.min(...x), xMax = Math.max(...x)
+    let xRange = xMax - xMin;
+    let data = [
+      {
+        x: x.reverse(),
+        y: y.reverse(),
+        type: 'bar',
+        orientation: 'h',
+        texttemplate: '%{x}',
+        textposition: 'outside',
+        outsidetextfont: { size: '12' },
+        name: '',
+        hovertemplate: '%{y}<br> %{x}',
+        marker: { color: colorSeq.reverse() },
+      }
+    ];
+    let layout = {
+      xaxis: {
+        visible: false, fixedrange: true, tickprefix: '$', tickformat: ',.2f',
+        range: [xMin - 0.2 * xRange, xMax + 0.2 * xRange],
+      },
+      yaxis: { fixedrange: true },
+      height: 250,
+      ...plotlyLayout,
+    };
+    Plotly.react('monthly-earnings-plot', data, layout, plotlyConfig);
+  };
+  plotMonthlyEarnings();
+
+  // arrow buttons
+  const adjustMonthlyEarningsPos = (diff) => {
+    const newPos = monthlyEarningsPos + diff;
+    if (newPos >= 0 && newPos <= monthlyEarningsData.length - 6) {
+      monthlyEarningsPos = newPos;
+      plotMonthlyEarnings();
+    }
+  }
+  $('#me-prev').on('click', (e) => adjustMonthlyEarningsPos(-1));
+  $('#me-next').on('click', (e) => adjustMonthlyEarningsPos(1));
+
+</script>
+
+
+{# earnings rate #}
+<script>
+
+  const updateEarningsRate = (span) => {
+    $('.er-table').hide();
+    $(`#er-table-${span}`).show();
+  };
+  updateEarningsRate('90');
+
+  // tabs
+  $('.er-tab').on('click', (e) => {
+    if ($(e.target).hasClass('tab-btn-selected')) return
+    $('.er-tab').removeClass('tab-btn-selected').addClass('tab-btn');
+    $(e.target).removeClass('tab-btn').addClass('tab-btn-selected');
+
+    const span = $(e.target).val();
+    updateEarningsRate(span);
+  });
+
+</script>
+
+</html>
