@@ -6,7 +6,7 @@ import plotly.express as px
 from jinja2 import Template, Environment, FileSystemLoader
 from build.utils import (
     books, book_color_map, book_color_sequence, color_map,
-    dollars, date_display
+    dollars, percent, date_display
 )
 
 
@@ -54,12 +54,9 @@ def build(records):
     # book values
     book_values, total_value = get_book_values(book_records)
 
-    # career number of bets, averages
-    career_bets, avg_bet_amount = get_career_stats(records)
-    carrer = {'career_bets': career_bets, 'avg_bet': avg_bet_amount}
-
-    # earnings rate
-    earnings_rate = get_earnings_rate(net_records, timespans=[90, 180, 365])
+    # betting stats
+    betting_stats = get_betting_stats(
+        net_records, timespans=[90, 180, 365, 'all'])
 
     # profit by month
     profit_by_month = get_profit_by_month(net_records)
@@ -87,9 +84,7 @@ def build(records):
         net_actions=net_actions,
         book_values=book_values,
         total_value=total_value,
-        carrer=carrer,
-        avg_bet_amount=avg_bet_amount,
-        earnings_rate=earnings_rate,
+        betting_stats=betting_stats,
         profit_by_month=profit_by_month,
         book_time_series=book_time_series,
         net_time_series=net_time_series,
@@ -157,6 +152,45 @@ def get_earnings_rate(net_records, timespans=[]):
             'total': dollars(profit),
         }
     return earnings_rate
+
+
+def get_betting_stats(net_records, timespans=[]):
+    betting_stats = {}
+    for span in timespans:
+        if span == 'all':
+            starting_point = net_records[0]['Time']
+            days = (net_records[-1]['Time'] - net_records[0]['Time']).days
+        else:
+            starting_point = pd.to_datetime(
+                net_records[-1]['Time'] - timedelta(days=span)
+            )
+            days = span
+        subset = [x for x in net_records if x['Time'] >= starting_point]
+        profit = subset[-1]['Profit'] - subset[0]['Profit']
+
+        wagers = [abs(x['Change']) for x in subset if x['Action'] == 'Wager']
+        winnings = [
+            abs(x['Change'])
+            for x in subset if x['Action'] == 'Winnings' and x['Bonus'] != 'Bonus'
+        ]
+        bets_placed = len(wagers)
+        bets_won = len(winnings)
+        win_rate = bets_won / bets_placed
+        avg_bet_amount = np.mean(wagers)
+        avg_win_amount = np.mean(winnings)
+
+        betting_stats[span] = {
+            'timespan': span,
+            'profit_per_week': dollars(profit / days * 7),
+            'profit_per_day': dollars(profit / days),
+            'total_profit': dollars(profit),
+            'bets_placed': bets_placed,
+            'bets_won': bets_won,
+            'win_rate': percent(win_rate),
+            'avg_bet_amount': dollars(avg_bet_amount),
+            'avg_win_amount': dollars(avg_win_amount),
+        }
+    return betting_stats
 
 
 def get_profit_by_month(net_records):

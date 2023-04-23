@@ -30,6 +30,10 @@ def dollars(x, whole=False, comma=False, plus=False):
             return f'{sign}${x:.2f}'
 
 
+def percent(x):
+    return '%.1f%%' % (x * 100)
+
+
 def date_display(dt, year=True):
     if year:
         return dt.strftime('%b %d, %Y').replace(' 0', ' ')

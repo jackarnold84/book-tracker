@@ -120,22 +120,23 @@
       <div id="monthly-earnings-plot" class="auto" style="max-width: 500px;"></div>
     </div>
 
-
-    <!-- Earnings Rate -->
+    <!-- Betting stats -->
     <div class="x3-row center">
-      <h4>Earnings Rate</h4>
+      <h3>Betting Stats</h3>
 
       <div class="x3-row center text rounded">
-        <div class="w3-border rounded auto" style="max-width: 180px;">
+        <div class="w3-border rounded auto" style="max-width: 235px;">
           <button class="er-tab tab-btn-selected" value="90">3M</button>
           <button class="er-tab tab-btn" value="180">6M</button>
           <button class="er-tab tab-btn" value="365">1Y</button>
+          <button class="er-tab tab-btn" value="all">All</button>
         </div>
       </div>
 
+      <h5>Earnings Rate</h5>
       <div class="auto" style="max-width: 300px;">
         
-        <table id="er-table-90" class="er-table w3-table w3-border w3-bordered fixed-layout text">
+        <table class="bs-table bs-table-90 w3-table w3-border w3-bordered fixed-layout text">
           <tbody>
             <tr>
               <th>Per Day</th>
@@ -152,7 +153,7 @@
           </tbody>
         </table>
         
-        <table id="er-table-180" class="er-table w3-table w3-border w3-bordered fixed-layout text">
+        <table class="bs-table bs-table-180 w3-table w3-border w3-bordered fixed-layout text">
           <tbody>
             <tr>
               <th>Per Day</th>
@@ -169,7 +170,7 @@
           </tbody>
         </table>
         
-        <table id="er-table-365" class="er-table w3-table w3-border w3-bordered fixed-layout text">
+        <table class="bs-table bs-table-365 w3-table w3-border w3-bordered fixed-layout text">
           <tbody>
             <tr>
               <th>Per Day</th>
@@ -186,39 +187,135 @@
           </tbody>
         </table>
         
-
-      </div>
-    </div>
-
-
-
-    <!-- Carrer Bets -->
-    <div class="x3-row center">
-      <h4>Career Betting</h4>
-
-      <div class="auto" style="max-width: 300px;">
-        <table class="w3-table w3-border w3-bordered text">
+        <table class="bs-table bs-table-all w3-table w3-border w3-bordered fixed-layout text">
           <tbody>
             <tr>
-              <th>Total Bets Placed</th>
-              <td>1764</td>
+              <th>Per Day</th>
+              <td>$5.28</td>
             </tr>
             <tr>
-              <th>Avg Bet Amount</th>
-              <td>$9.00</td>
+              <th>Per Week</th>
+              <td>$36.93</td>
+            </tr>
+            <tr>
+              <th>Total</th>
+              <td>$3893.50</td>
             </tr>
           </tbody>
         </table>
+        
+      </div>
+
+      <h5>Bet Amounts</h5>
+      <div class="auto" style="max-width: 300px;">
+        
+        <table class="bs-table bs-table-90 w3-table w3-border w3-bordered fixed-layout text">
+          <tbody>
+            <tr>
+              <th>Bets Placed</th>
+              <td>320</td>
+            </tr>
+            <tr>
+              <th>Bets Won</th>
+              <td>176 (55.0%)</td>
+            </tr>
+            <tr>
+              <th>Avg Wager</th>
+              <td>$8.88</td>
+            </tr>
+            <tr>
+              <th>Avg Win Payout</th>
+              <td>$19.47</td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <table class="bs-table bs-table-180 w3-table w3-border w3-bordered fixed-layout text">
+          <tbody>
+            <tr>
+              <th>Bets Placed</th>
+              <td>637</td>
+            </tr>
+            <tr>
+              <th>Bets Won</th>
+              <td>347 (54.5%)</td>
+            </tr>
+            <tr>
+              <th>Avg Wager</th>
+              <td>$7.98</td>
+            </tr>
+            <tr>
+              <th>Avg Win Payout</th>
+              <td>$16.69</td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <table class="bs-table bs-table-365 w3-table w3-border w3-bordered fixed-layout text">
+          <tbody>
+            <tr>
+              <th>Bets Placed</th>
+              <td>1061</td>
+            </tr>
+            <tr>
+              <th>Bets Won</th>
+              <td>506 (47.7%)</td>
+            </tr>
+            <tr>
+              <th>Avg Wager</th>
+              <td>$8.43</td>
+            </tr>
+            <tr>
+              <th>Avg Win Payout</th>
+              <td>$17.84</td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <table class="bs-table bs-table-all w3-table w3-border w3-bordered fixed-layout text">
+          <tbody>
+            <tr>
+              <th>Bets Placed</th>
+              <td>1764</td>
+            </tr>
+            <tr>
+              <th>Bets Won</th>
+              <td>834 (47.3%)</td>
+            </tr>
+            <tr>
+              <th>Avg Wager</th>
+              <td>$9.00</td>
+            </tr>
+            <tr>
+              <th>Avg Win Payout</th>
+              <td>$18.96</td>
+            </tr>
+          </tbody>
+        </table>
+        
       </div>
     </div>
+
 
   </div>
 
 
   <!-- FOOTER -->
-  <footer class="w3-center w3-container x3-b4" style="margin-top: 64px;">
-    <i class="bi-c-circle"></i>
-    <span>2023 Jack Arnold</span>
+  <footer class="w3-center w3-container" style="margin-top: 64px;">
+
+    <span class="footer-span">Jack Arnold (2022)</span>
+    <span class="footer-span" >
+      <a class="x3-link-plain" href="https://github.com/jackarnold84/book-tracker">
+        <i class="bi-github"></i>
+        GitHub
+      </a>
+    </span>
+    <span class="footer-span">
+      <a class="x3-link-plain" href="https://raw.githubusercontent.com/jackarnold84/book-tracker/main/processed_data/transactions.csv">
+        <i class="bi-table"></i>
+        Data Source
+      </a>
+    </span>
   </footer>
 
 
@@ -337,7 +434,6 @@
       yaxis: { fixedrange: true, tickprefix: '$' },
       height: 320,
       legend: { orientation: 'h', y: -0.2 },
-      dragmode: false,
       ...plotlyLayout,
     };
     Plotly.react('time-series-plot', plotData, layout, plotlyConfig);
@@ -502,8 +598,8 @@
 <script>
 
   const updateEarningsRate = (span) => {
-    $('.er-table').hide();
-    $(`#er-table-${span}`).show();
+    $('.bs-table').hide();
+    $(`.bs-table-${span}`).show();
   };
   updateEarningsRate('90');
 

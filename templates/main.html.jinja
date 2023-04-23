@@ -105,71 +105,87 @@
       <div id="monthly-earnings-plot" class="auto" style="max-width: 500px;"></div>
     </div>
 
-
-    <!-- Earnings Rate -->
+    <!-- Betting stats -->
     <div class="x3-row center">
-      <h4>Earnings Rate</h4>
+      <h3>Betting Stats</h3>
 
       <div class="x3-row center text rounded">
-        <div class="w3-border rounded auto" style="max-width: 180px;">
+        <div class="w3-border rounded auto" style="max-width: 235px;">
           <button class="er-tab tab-btn-selected" value="90">3M</button>
           <button class="er-tab tab-btn" value="180">6M</button>
           <button class="er-tab tab-btn" value="365">1Y</button>
+          <button class="er-tab tab-btn" value="all">All</button>
         </div>
       </div>
 
+      <h5>Earnings Rate</h5>
       <div class="auto" style="max-width: 300px;">
-        {% for span in earnings_rate %}
-        <table id="er-table-{{ span }}" class="er-table w3-table w3-border w3-bordered fixed-layout text">
+        {% for span in betting_stats %}
+        <table class="bs-table bs-table-{{ span }} w3-table w3-border w3-bordered fixed-layout text">
           <tbody>
             <tr>
               <th>Per Day</th>
-              <td>{{ earnings_rate[span]['per_day'] }}</td>
+              <td>{{ betting_stats[span]['profit_per_day'] }}</td>
             </tr>
             <tr>
               <th>Per Week</th>
-              <td>{{ earnings_rate[span]['per_week'] }}</td>
+              <td>{{ betting_stats[span]['profit_per_week'] }}</td>
             </tr>
             <tr>
               <th>Total</th>
-              <td>{{ earnings_rate[span]['total'] }}</td>
+              <td>{{ betting_stats[span]['total_profit'] }}</td>
             </tr>
           </tbody>
         </table>
         {% endfor %}
-
       </div>
-    </div>
 
-
-
-    <!-- Carrer Bets -->
-    <div class="x3-row center">
-      <h4>Career Betting</h4>
-
+      <h5>Bet Amounts</h5>
       <div class="auto" style="max-width: 300px;">
-        <table class="w3-table w3-border w3-bordered text">
+        {% for span in betting_stats %}
+        <table class="bs-table bs-table-{{ span }} w3-table w3-border w3-bordered fixed-layout text">
           <tbody>
             <tr>
-              <th>Total Bets Placed</th>
-              <td>{{ carrer['career_bets'] }}</td>
+              <th>Bets Placed</th>
+              <td>{{ betting_stats[span]['bets_placed'] }}</td>
             </tr>
             <tr>
-              <th>Avg Bet Amount</th>
-              <td>{{ carrer['avg_bet'] }}</td>
+              <th>Bets Won</th>
+              <td>{{ betting_stats[span]['bets_won'] }} ({{ betting_stats[span]['win_rate'] }})</td>
+            </tr>
+            <tr>
+              <th>Avg Wager</th>
+              <td>{{ betting_stats[span]['avg_bet_amount'] }}</td>
+            </tr>
+            <tr>
+              <th>Avg Win Payout</th>
+              <td>{{ betting_stats[span]['avg_win_amount'] }}</td>
             </tr>
           </tbody>
         </table>
+        {% endfor %}
       </div>
     </div>
+
 
   </div>
 
 
   <!-- FOOTER -->
-  <footer class="w3-center w3-container x3-b4" style="margin-top: 64px;">
-    <i class="bi-c-circle"></i>
-    <span>2023 Jack Arnold</span>
+  <footer class="w3-center w3-container" style="margin-top: 64px;">
+    <span class="footer-span">Jack Arnold (2022)</span>
+    <span class="footer-span" >
+      <a class="x3-link-plain" href="https://github.com/jackarnold84/book-tracker">
+        <i class="bi-github"></i>
+        GitHub
+      </a>
+    </span>
+    <span class="footer-span">
+      <a class="x3-link-plain" href="https://raw.githubusercontent.com/jackarnold84/book-tracker/main/processed_data/transactions.csv">
+        <i class="bi-table"></i>
+        Data Source
+      </a>
+    </span>
   </footer>
 
 
@@ -452,8 +468,8 @@
 <script>
 
   const updateEarningsRate = (span) => {
-    $('.er-table').hide();
-    $(`#er-table-${span}`).show();
+    $('.bs-table').hide();
+    $(`.bs-table-${span}`).show();
   };
   updateEarningsRate('90');
 
