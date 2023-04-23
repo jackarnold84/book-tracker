@@ -52,13 +52,13 @@ def read_caesars():
     df = df[df['Status'] == 'Approved']
 
     df['Book'] = 'Caesars'
-    df['Time'] = [x.replace('EDT', '') for x in df['Time']]
+    df['Time'] = [x.replace('EDT', '').replace('CDT', '') for x in df['Time']]
     df['Time'] = pd.to_datetime(df['Time'])
 
     df['Bonus'] = ['Bonus' if x in ['Bonus'] else '' for x in df['Type']]
 
     action_map = {'Bet': 'Wager', 'Payout': 'Winnings', 'Bonus': 'Winnings', 'Void': 'Winnings',
-                  'Deposit': 'Deposit', 'Withdraws': 'Withdraw'}
+                  'Deposit': 'Deposit', 'Withdrawal Request': 'Withdraw'}
     df['Action'] = [action_map[x] for x in df['Type']]
 
     # fix bonus balance sync

@@ -32,7 +32,7 @@ def read(books=[]):
 def update_data(new_records):
 
     def get_record_key(x):
-        balance = x.get('Balance') or x.get('Book Balance')
+        balance = x.get('Balance')
         return (
             x['Book'],
             int(x['Time'].to_julian_date() * 10000),

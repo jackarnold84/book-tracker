@@ -13,7 +13,7 @@ def read_fanduel():
     df = df.drop_duplicates()
     df = df.reset_index(drop=True)
 
-    df['DATE'] = [x.replace('ET', '') for x in df['DATE']]
+    df['DATE'] = [x.replace('ET', '').replace('CST', '') for x in df['DATE']]
     df['DATE'] = pd.to_datetime(df['DATE'])
 
     df = df[df['TYPE'].isin(
