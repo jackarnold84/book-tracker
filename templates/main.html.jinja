@@ -35,11 +35,12 @@
     <!-- Time Series Plot -->
     <div class="x3-row">
 
-      <h3 class="center">Value Over Time</h3>
+      <h4 class="center">Over Time</h4>
       <div class="center text rounded x3-b4">
-        <div class="w3-border rounded auto" style="max-width: 130px;">
-          <button class="ts-group-tab tab-btn-selected" value="books">Books</button>
+        <div class="w3-border rounded auto" style="max-width: 200px;">
+          <button class="ts-group-tab tab-btn-selected" value="book">Books</button>
           <button class="ts-group-tab tab-btn" value="total">Total</button>
+          <button class="ts-group-tab tab-btn" value="volume">Volume</button>
         </div>
       </div>
       <div class="center text rounded">
@@ -174,14 +175,15 @@
   <!-- FOOTER -->
   <footer class="w3-center w3-container" style="margin-top: 64px;">
     <span class="footer-span">Jack Arnold (2022)</span>
-    <span class="footer-span" >
+    <span class="footer-span">
       <a class="x3-link-plain" href="https://github.com/jackarnold84/book-tracker">
         <i class="bi-github"></i>
         GitHub
       </a>
     </span>
     <span class="footer-span">
-      <a class="x3-link-plain" href="https://raw.githubusercontent.com/jackarnold84/book-tracker/main/processed_data/transactions.csv">
+      <a class="x3-link-plain"
+        href="https://raw.githubusercontent.com/jackarnold84/book-tracker/main/processed_data/transactions.csv">
         <i class="bi-table"></i>
         Data Source
       </a>
@@ -226,6 +228,7 @@
   const monthlyEarningsData = {{ profit_by_month | tojson }};
   const bookTimeSeriesData = {{ book_time_series | tojson }};
   const netTimeSeriesData = {{ net_time_series | tojson }};
+  const volumeTimeSeriesData = {{ volume_time_series | tojson }};
 
 </script>
 
@@ -234,13 +237,16 @@
 <script>
 
   // state
-  let timeSeriesByBook = true;
+  let timeSeriesGrouping = 'book';
   let timeSeriesRangeMin = 0;
   let timeSeriesRangeMax = 9e9;
 
   // percent change
   const showPercentChange = (plotData) => {
-    const abbrevMapper = { 'Fanduel': 'FD', 'Draftkings': 'DK', 'Caesars': 'CZR' };
+    const abbrevMapper = {
+      'Fanduel': 'FD', 'Draftkings': 'DK', 'Caesars': 'CZR',
+      'Wager Volume': 'Volume',
+    };
     $('#pct-change').empty();
     plotData.forEach(data => {
       if (data.y.length >= 2) {
@@ -261,7 +267,7 @@
 
   // plot
   const plotTimeSeries = () => {
-    const byBook = timeSeriesByBook;
+    const grouping = timeSeriesGrouping;
     const rangeMin = timeSeriesRangeMin;
     const rangeMax = timeSeriesRangeMax;
 
@@ -271,7 +277,7 @@
       showlegend: true,
     }
     let plotData = [];
-    if (byBook) {
+    if (timeSeriesGrouping === 'book') {
       plotData = bookTimeSeriesData.map(data => {
         const start = getPosition(data.timestamp, rangeMin);
         const end = getPosition(data.timestamp, rangeMax);
@@ -283,8 +289,8 @@
           marker: { color: data.color },
           ...dataProps,
         }
-      })
-    } else {
+      });
+    } else if (timeSeriesGrouping === 'total') {
       const data = netTimeSeriesData;
       const start = getPosition(data.timestamp, rangeMin);
       const end = getPosition(data.timestamp, rangeMax);
@@ -297,7 +303,23 @@
           marker: { color: data.color },
           ...dataProps,
         }
-      ]
+      ];
+    } else if (timeSeriesGrouping === 'volume') {
+      const data = volumeTimeSeriesData;
+      const start = getPosition(data.timestamp, rangeMin);
+      const end = getPosition(data.timestamp, rangeMax);
+      plotData = [
+        {
+          x: data.time.slice(start, end),
+          y: data.value.slice(start, end),
+          customdata: data.time_display.slice(start, end),
+          name: 'Wager Volume',
+          marker: { color: data.color },
+          line: { shape: 'spline' },
+          fill: 'tozeroy',
+          ...dataProps,
+        }
+      ];
     }
     let layout = {
       xaxis: { fixedrange: true },
@@ -325,8 +347,8 @@
   };
   updateTimeSeriesRange('30');
 
-  const updateTimeSeriesGrouping = (byBook = true) => {
-    timeSeriesByBook = byBook;
+  const updateTimeSeriesGrouping = (group) => {
+    timeSeriesGrouping = group;
     plotTimeSeries();
   };
 
@@ -337,7 +359,7 @@
     $(e.target).removeClass('tab-btn').addClass('tab-btn-selected');
 
     const value = $(e.target).val();
-    updateTimeSeriesGrouping(value === 'books');
+    updateTimeSeriesGrouping(value);
   });
 
   // time span tabs

@@ -1,12 +1,10 @@
 import numpy as np
 import pandas as pd
 from datetime import timedelta
-import plotly
-import plotly.express as px
-from jinja2 import Template, Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader
 from build.utils import (
     books, book_color_map, book_color_sequence, color_map,
-    dollars, percent, date_display
+    dollars, percent, date_display, smooth_value,
 )
 
 
@@ -66,6 +64,9 @@ def build(records):
         book_records, net_records
     )
 
+    # volume time series
+    volume_time_series = get_volume_time_series(net_records)
+
     # metadata
     meta = {
         'last_update_display': last_update_display,
@@ -88,6 +89,7 @@ def build(records):
         profit_by_month=profit_by_month,
         book_time_series=book_time_series,
         net_time_series=net_time_series,
+        volume_time_series=volume_time_series,
     )
 
     outfile = 'index.html'
@@ -234,3 +236,29 @@ def get_time_series_data(book_records, net_records):
         'value': [round(x['Profit'], 2) for x in net_records],
     }
     return book_time_series, net_time_series
+
+
+def get_volume_time_series(net_records):
+    by_day = {}
+    wagers = [x for x in net_records if x['Action'] == 'Wager']
+    for x in wagers:
+        day = x['Time'].floor('d')
+        by_day[day] = (by_day.get(day) or 0) + abs(x['Change'])
+
+    periods = pd.date_range(
+        net_records[0]['Time'], net_records[-1]['Time'],
+        freq='D'
+    ).floor('d')
+    volume_by_day = [by_day.get(d) or 0 for d in periods]
+    smoothed_volume_by_day = [
+        round(smooth_value(volume_by_day, i), 2)
+        for i in range(len(volume_by_day))
+    ]
+
+    return {
+        'color': color_map['green'],
+        'timestamp': [int(d.timestamp()) for d in periods],
+        'time': [str(d) for d in periods],
+        'time_display': [date_display(d, year=False) for d in periods],
+        'value': smoothed_volume_by_day,
+    }
