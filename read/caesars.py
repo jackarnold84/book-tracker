@@ -1,4 +1,5 @@
 import pandas as pd
+
 from read.config import caesars_read_location
 
 
@@ -17,7 +18,6 @@ def read_caesars():
     }
 
     i = 0
-    curr_date = None
 
     while True:
 
@@ -26,13 +26,10 @@ def read_caesars():
 
         c = cells.iloc[i]
 
-        if '20' in str(c) and str(c).count('-') >= 2 and str(c).count(':') >= 2:
-            curr_date = pd.to_datetime(c).date()
-            i += 1
-            continue
-
-        if c == 'Time':
-            data['Time'].append(str(curr_date) + ' ' + cells.iloc[i+1])
+        if '20' in str(c) and str(c).count(':') >= 2 and (' AM ' in str(c) or ' PM ' in str(c)):
+            c_dt = str(c).replace('CST', '').replace('EST', '')
+            datetime = pd.to_datetime(c_dt)
+            data['Time'].append(str(datetime))
         elif c == 'Type':
             data['Type'].append(cells.iloc[i+1])
         elif c == 'Amount':
