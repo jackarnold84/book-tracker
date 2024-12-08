@@ -1,11 +1,13 @@
 import pandas as pd
+
 from read.config import draftkings_read_location
 
 
 def read_draftkings():
     print('--> reading draftkings')
 
-    data = pd.read_excel(draftkings_read_location, sheet_name=None, header=None)
+    data = pd.read_excel(draftkings_read_location,
+                         sheet_name=None, header=None)
     cells = pd.concat(data.values())
 
     data = {
@@ -54,8 +56,9 @@ def read_draftkings():
     df['Bonus'] = ['Bonus' if x in ['Promotions and Rewards']
                    else '' for x in df['Category']]
 
-    action_map = {'Wagers and Entry Fees and Purchases': 'Wager', 'Winnings': 'Winnings', 'Promotions and Rewards': 'Winnings',
-                  'Deposits': 'Deposit', 'Withdraws': 'Withdraw'}
+    action_map = {'Wagers and Entry Fees and Purchases': 'Wager',
+                  'Winnings': 'Winnings', 'Promotions and Rewards': 'Winnings',
+                  'Deposits': 'Deposit', 'Withdrawals': 'Withdraw'}
     df['Action'] = [action_map[x] for x in df['Category']]
 
     df = df[['Book', 'Datetime', 'Action', 'Bonus', 'Change', 'Balance']]

@@ -1,4 +1,5 @@
 import pandas as pd
+
 from read.config import fanduel_read_location
 
 
@@ -13,11 +14,15 @@ def read_fanduel():
     df = df.drop_duplicates()
     df = df.reset_index(drop=True)
 
+    # Remove rows where balance is 25 or less (to exclude bonus token transactions)
+    df = df[df['BALANCE'] > 25]
+
     df['DATE'] = [x.replace('ET', '').replace('CST', '') for x in df['DATE']]
     df['DATE'] = pd.to_datetime(df['DATE'])
 
     df = df[df['TYPE'].isin(
-        ['Wager', 'Winnings', 'Bonus', 'Manual Adjustment', 'Deposit', 'Withdraw'])]
+        ['Wager', 'Winnings', 'Bonus', 'Manual Adjustment', 'Deposit', 'Withdrawal']
+    )]
 
     df = pd.DataFrame(df)
     df['BONUS'] = list(df['TYPE'])
@@ -31,8 +36,9 @@ def read_fanduel():
     df['Bonus'] = ['Bonus' if x in ['Bonus', 'Manual Adjustment']
                    else '' for x in df['Bonus']]
 
-    action_map = {'Wager': 'Wager', 'Winnings': 'Winnings', 'Bonus': 'Winnings', 'Manual Adjustment': 'Winnings',
-                  'Deposit': 'Deposit', 'Withdraw': 'Withdraw'}
+    action_map = {'Wager': 'Wager', 'Winnings': 'Winnings', 'Bonus': 'Winnings',
+                  'Manual Adjustment': 'Winnings', 'Deposit': 'Deposit',
+                  'Withdrawal': 'Withdraw'}
     df['Action'] = [action_map[x] for x in df['Action']]
 
     df = df.sort_values('Time')
@@ -46,5 +52,6 @@ def read_fanduel():
         if (abs(r_curr['Change']) <= 150) and (r_prev['Balance'] - r_curr['Balance'] > 150):
             df.iloc[i, 5] = r_prev['Balance'] + r_curr['Change']
 
+    df['Balance'] = df['Balance'].round(2)
     records = df.to_dict(orient='records')
     return records
